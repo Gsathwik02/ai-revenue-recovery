@@ -6,7 +6,7 @@ from pathlib import Path
 app = FastAPI(
     title="AI Revenue Recovery Agent",
     description="AI-powered revenue recovery system",
-    version="3.1.0"
+    version="3.0.1"
 )
 
 # ========================================
@@ -38,7 +38,7 @@ df = pd.read_csv(DATA_PATH)
 def home():
     return {
         "message": "AI Revenue Recovery Agent is running!",
-        "version": "3.1.0"
+        "version": "3.0.1"
     }
 
 
@@ -87,48 +87,31 @@ def recovery_analysis():
 
         score = 0
 
-        # ----------------------------------------
-        # AMOUNT SCORE
-        # ----------------------------------------
-
+        # Amount score
         if amount >= 50000:
             score += 5
-
         elif amount >= 20000:
             score += 4
-
         elif amount >= 5000:
             score += 3
-
         elif amount >= 2000:
             score += 2
-
         else:
             score += 1
 
-        # ----------------------------------------
-        # OVERDUE SCORE
-        # ----------------------------------------
-
+        # Overdue score
         if overdue_days >= 60:
             score += 5
-
         elif overdue_days >= 30:
             score += 4
-
         elif overdue_days >= 15:
             score += 3
-
         elif overdue_days >= 7:
             score += 2
-
         elif overdue_days > 0:
             score += 1
 
-        # ----------------------------------------
-        # CUSTOMER SEGMENT SCORE
-        # ----------------------------------------
-
+        # Customer segment score
         if segment in ["premium", "high", "vip"]:
             score += 2
 
@@ -136,14 +119,10 @@ def recovery_analysis():
         # PRIORITY
         # ========================================
 
-        # 8+ = HIGH
-        # 5-7 = MEDIUM
-        # 0-4 = LOW
-
-        if score >= 8:
+        if score >= 9:
             priority = "HIGH"
 
-        elif score >= 5:
+        elif score >= 6:
             priority = "MEDIUM"
 
         else:
@@ -151,25 +130,25 @@ def recovery_analysis():
 
         # ========================================
         # RISK LEVEL
+        # IMPORTANT:
+        # Frontend expects HIGH / MODERATE / LOW
+        # NOT CRITICAL
         # ========================================
 
-        # HIGH
         if (
             priority == "HIGH"
             or overdue_days >= 30
-            or score >= 8
+            or score >= 10
         ):
             risk_level = "HIGH"
 
-        # MODERATE
         elif (
             priority == "MEDIUM"
             or overdue_days >= 15
-            or score >= 5
+            or score >= 6
         ):
             risk_level = "MODERATE"
 
-        # LOW
         else:
             risk_level = "LOW"
 
@@ -179,12 +158,11 @@ def recovery_analysis():
 
         if risk_level == "HIGH":
 
-            # Very high-value + very overdue
             if amount >= 50000 and overdue_days >= 30:
 
                 ai_recommendation = (
-                    "High-value severely overdue account "
-                    "requires immediate intervention"
+                    "High-value overdue account requires "
+                    "immediate intervention"
                 )
 
                 ai_decision = (
@@ -193,17 +171,15 @@ def recovery_analysis():
                 )
 
                 recommended_action = (
-                    "Priority recovery team contact"
+                    "Priority team contact"
                 )
 
                 action_type = "CONTACT"
 
-            # High score
             elif score >= 10:
 
                 ai_recommendation = (
-                    "Customer shows strong recovery potential "
-                    "but requires immediate attention"
+                    "Customer shows strong recovery potential"
                 )
 
                 ai_decision = (
@@ -217,17 +193,15 @@ def recovery_analysis():
 
                 action_type = "CONTACT"
 
-            # Other high-risk accounts
             else:
 
                 ai_recommendation = (
-                    "High-risk account requires immediate "
-                    "personalized recovery"
+                    "Immediate personalized recovery required"
                 )
 
                 ai_decision = (
                     "Contact customer immediately and "
-                    "provide assisted payment options"
+                    "offer assisted recovery"
                 )
 
                 recommended_action = (
@@ -350,33 +324,20 @@ def recovery_analysis():
         # ========================================
 
         results.append({
-
-            "transaction_id": str(
-                row["transaction_id"]
-            ),
-
+            "transaction_id": str(row["transaction_id"]),
             "customer_id": customer_id,
-
             "amount": amount,
-
             "days_overdue": overdue_days,
-
-            "customer_segment": str(
-                row["customer_segment"]
-            ),
+            "customer_segment": str(row["customer_segment"]),
 
             "recovery_score": score,
-
             "priority": priority,
-
             "risk_level": risk_level,
 
             "ai_recommendation": ai_recommendation,
-
             "ai_decision": ai_decision,
 
             "recommended_action": recommended_action,
-
             "action_type": action_type,
 
             "recovery_message": recovery_message
@@ -397,7 +358,6 @@ def customer_recovery(customer_id: str):
     for result in results:
 
         if str(result["customer_id"]) == str(customer_id):
-
             return result
 
     return {
@@ -444,38 +404,32 @@ def dashboard_stats():
     total_transactions = len(results)
 
     high_priority = sum(
-        1
-        for item in results
+        1 for item in results
         if item["priority"] == "HIGH"
     )
 
     medium_priority = sum(
-        1
-        for item in results
+        1 for item in results
         if item["priority"] == "MEDIUM"
     )
 
     low_priority = sum(
-        1
-        for item in results
+        1 for item in results
         if item["priority"] == "LOW"
     )
 
-    high_risk_accounts = sum(
-        1
-        for item in results
+    high_risk = sum(
+        1 for item in results
         if item["risk_level"] == "HIGH"
     )
 
-    moderate_risk_accounts = sum(
-        1
-        for item in results
+    moderate_risk = sum(
+        1 for item in results
         if item["risk_level"] == "MODERATE"
     )
 
-    low_risk_accounts = sum(
-        1
-        for item in results
+    low_risk = sum(
+        1 for item in results
         if item["risk_level"] == "LOW"
     )
 
@@ -500,32 +454,24 @@ def dashboard_stats():
         sum(
             item["recovery_score"]
             for item in results
-        )
-        / total_transactions
+        ) / total_transactions
         if total_transactions > 0
         else 0
     )
 
     return {
-
         "total_transactions": total_transactions,
 
         "high_priority": high_priority,
-
         "medium_priority": medium_priority,
-
         "low_priority": low_priority,
 
-        "high_risk_accounts": high_risk_accounts,
-
-        "moderate_risk_accounts": moderate_risk_accounts,
-
-        "low_risk_accounts": low_risk_accounts,
+        "high_risk": high_risk,
+        "moderate_risk": moderate_risk,
+        "low_risk": low_risk,
 
         "total_outstanding": total_outstanding,
-
         "high_priority_amount": high_priority_amount,
-
         "potential_recovery": potential_recovery,
 
         "average_recovery_score": round(
