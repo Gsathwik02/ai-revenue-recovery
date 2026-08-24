@@ -1,0 +1,16 @@
+transaction_id,customer_id,amount,currency,status,days_overdue,customer_segment,payment_method
+TXN001,CUST001,1200,INR,failed,3,regular,card
+TXN002,CUST002,850,INR,failed,7,premium,upi
+TXN003,CUST003,2400,INR,success,0,regular,card
+TXN004,CUST004,5600,INR,failed,15,premium,netbanking
+TXN005,CUST005,450,INR,failed,2,regular,upi
+TXN006,CUST006,3200,INR,failed,10,premium,card
+TXN007,CUST007,780,INR,success,0,regular,upi
+TXN008,CUST008,9100,INR,failed,20,premium,netbanking
+TXN009,CUST009,1500,INR,failed,5,regular,card
+TXN010,CUST010,670,INR,failed,8,regular,upi
+TXN011,CUST011,4300,INR,success,0,premium,card
+TXN012,CUST012,2800,INR,failed,12,premium,upi
+TXN013,CUST013,950,INR,failed,4,regular,netbanking
+TXN014,CUST014,7200,INR,failed,18,premium,card
+TXN015,CUST015,1100,INR,success,0,regular,upi
