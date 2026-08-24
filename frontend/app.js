@@ -90,26 +90,26 @@ function updateDashboard() {
     // Keep backend risk values exactly:
     // HIGH / MODERATE / LOW
 
-    const high =
-        recoveryData.filter(
-            item =>
-                String(item.risk_level || "")
-                    .toUpperCase() === "HIGH"
-        ).length;
+  const high =
+    recoveryData.filter(
+        item =>
+            String(item.priority || "")
+                .toUpperCase() === "HIGH"
+    ).length;
 
-    const moderate =
-        recoveryData.filter(
-            item =>
-                String(item.risk_level || "")
-                    .toUpperCase() === "MODERATE"
-        ).length;
+const moderate =
+    recoveryData.filter(
+        item =>
+            String(item.priority || "")
+                .toUpperCase() === "MEDIUM"
+    ).length;
 
-    const low =
-        recoveryData.filter(
-            item =>
-                String(item.risk_level || "")
-                    .toUpperCase() === "LOW"
-        ).length;
+const low =
+    recoveryData.filter(
+        item =>
+            String(item.priority || "")
+                .toUpperCase() === "LOW"
+    ).length;
 
 
     setText(
