@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,60 +15,22 @@
     <div class="container">
 
         <header class="header">
+
             <div>
                 <h1>AI Revenue Recovery</h1>
                 <p>Intelligent payment recovery dashboard</p>
             </div>
 
-            <button id="refreshBtn">Refresh Analysis</button>
+            <button onclick="loadRecoveryAnalysis()">
+                Refresh Analysis
+            </button>
+
         </header>
-
-        <section class="stats">
-
-            <div class="card">
-                <span>Total Transactions</span>
-                <strong id="totalTransactions">-</strong>
-            </div>
-
-            <div class="card">
-                <span>Overdue Payments</span>
-                <strong id="overduePayments">-</strong>
-            </div>
-
-            <div class="card">
-                <span>High Priority</span>
-                <strong id="highPriority">-</strong>
-            </div>
-
-            <div class="card">
-                <span>Recovery Amount</span>
-                <strong id="recoveryAmount">-</strong>
-            </div>
-
-        </section>
-
-        <section class="dashboard">
-
-            <div class="section-header">
-                <h2>Recovery Analysis</h2>
-                <span id="status">Loading...</span>
-            </div>
-
-            <div id="loading" class="message">
-                Loading AI recovery analysis...
-            </div>
-
-            <div id="error" class="message error hidden">
-                Failed to load recovery analysis.
-            </div>
-
-            <div id="transactions" class="transactions"></div>
-
-        </section>
 
     </div>
 
     <script src="app.js"></script>
-<script src="app.js"></script>
+
 </body>
+
 </html>
