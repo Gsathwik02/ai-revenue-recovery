@@ -1,193 +1,933 @@
 const API_URL = "https://ai-revenue-recovery-backend.onrender.com";
 
 let recoveryData = [];
+let filteredData = [];
+
+
+// ============================================================
+// LOAD RECOVERY DATA
+// ============================================================
 
 async function loadRecoveryAnalysis() {
-    const app = document.querySelector(".container");
+
+    const tableBody =
+        document.getElementById("recoveryTableBody");
 
     try {
-        const response = await fetch(`${API_URL}/recovery-analysis`);
 
-        if (!response.ok) {
-            throw new Error("Failed to load recovery analysis");
+        if (tableBody) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="loading-cell">
+                        Loading AI recovery analysis...
+                    </td>
+                </tr>
+            `;
         }
 
-        recoveryData = await response.json();
+        const response =
+            await fetch(`${API_URL}/recovery-analysis`);
 
-        renderDashboard(recoveryData);
+        if (!response.ok) {
+            throw new Error("Recovery API request failed");
+        }
 
-        console.log("Recovery analysis loaded:", recoveryData);
+        const data =
+            await response.json();
+
+        if (!Array.isArray(data)) {
+            throw new Error("Invalid recovery data");
+        }
+
+        recoveryData = data;
+        filteredData = [...data];
+
+        updateDashboard();
+        displayTransactions(filteredData);
+        displayInsights();
+        displayRecommendations();
+
+        console.log(
+            "Recovery analysis loaded:",
+            recoveryData
+        );
 
     } catch (error) {
-        console.error("Error:", error);
 
-        if (app) {
-            app.innerHTML += `
-                <div class="error-box">
-                    ⚠️ Unable to load recovery analysis.
-                    Please try again.
-                </div>
+        console.error(
+            "Recovery Analysis Error:",
+            error
+        );
+
+        if (tableBody) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="loading-cell">
+                        ⚠️ Unable to load recovery analysis.
+                    </td>
+                </tr>
             `;
         }
     }
 }
 
-function renderDashboard(data) {
-    const container = document.querySelector(".container");
 
-    if (!container) return;
+// ============================================================
+// UPDATE SUMMARY CARDS
+// ============================================================
 
-    const totalAmount = data.reduce(
-        (sum, item) => sum + Number(item.amount || 0),
-        0
+function updateDashboard() {
+
+    const total =
+        recoveryData.length;
+
+    const totalAmount =
+        recoveryData.reduce(
+            (sum, item) =>
+                sum + Number(item.amount || 0),
+            0
+        );
+
+    const high =
+        recoveryData.filter(
+            item =>
+                String(item.risk_level || "")
+                    .toUpperCase() === "HIGH"
+        ).length;
+
+    const moderate =
+        recoveryData.filter(
+            item =>
+                String(item.risk_level || "")
+                    .toUpperCase() === "MODERATE"
+        ).length;
+
+    const low =
+        recoveryData.filter(
+            item =>
+                String(item.risk_level || "")
+                    .toUpperCase() === "LOW"
+        ).length;
+
+
+    setText(
+        "totalAmount",
+        `₹${totalAmount.toLocaleString("en-IN")}`
     );
 
-    const highRisk = data.filter(
-        item => String(item.risk_level).toUpperCase() === "HIGH"
-    ).length;
+    setText(
+        "totalTransactions",
+        total
+    );
 
-    const mediumRisk = data.filter(
-        item => String(item.risk_level).toUpperCase() === "MODERATE"
-    ).length;
+    setText(
+        "highRisk",
+        high
+    );
 
-    const lowRisk = data.filter(
-        item => String(item.risk_level).toUpperCase() === "LOW"
-    ).length;
+    setText(
+        "moderateRisk",
+        moderate
+    );
 
-    const rows = data.map(item => `
-        <tr>
-            <td>${item.transaction_id || "-"}</td>
-            <td>${item.customer_id || "-"}</td>
-            <td>₹${Number(item.amount || 0).toLocaleString("en-IN")}</td>
-            <td>${item.days_overdue ?? 0}</td>
+    setText(
+        "lowRisk",
+        low
+    );
 
-            <td>
-                <span class="risk ${String(item.risk_level).toLowerCase()}">
-                    ${item.risk_level || "-"}
-                </span>
-            </td>
+    setText(
+        "accountsAnalyzed",
+        `${total} accounts analyzed`
+    );
 
-            <td>${item.recovery_score ?? "-"}</td>
 
-            <td>
-                <span class="priority">
-                    ${item.priority || "-"}
-                </span>
-            </td>
+    // Update bars
 
-            <td>${item.recommended_action || "-"}</td>
-        </tr>
-    `).join("");
+    const highPercentage =
+        total > 0
+            ? (high / total) * 100
+            : 0;
 
-    const existingDashboard =
-        document.querySelector(".recovery-dashboard");
+    const moderatePercentage =
+        total > 0
+            ? (moderate / total) * 100
+            : 0;
 
-    if (existingDashboard) {
-        existingDashboard.remove();
-    }
+    const lowPercentage =
+        total > 0
+            ? (low / total) * 100
+            : 0;
 
-    const dashboard = document.createElement("section");
 
-    dashboard.className = "recovery-dashboard";
+    setBar(
+        "highRiskBar",
+        highPercentage
+    );
 
-    dashboard.innerHTML = `
-        <div class="stats-grid">
+    setBar(
+        "moderateRiskBar",
+        moderatePercentage
+    );
 
-            <div class="stat-card">
-                <h3>Total Pending Amount</h3>
-                <strong>
-                    ₹${totalAmount.toLocaleString("en-IN")}
-                </strong>
-            </div>
+    setBar(
+        "lowRiskBar",
+        lowPercentage
+    );
 
-            <div class="stat-card">
-                <h3>Total Transactions</h3>
-                <strong>${data.length}</strong>
-            </div>
 
-            <div class="stat-card">
-                <h3>High Risk</h3>
-                <strong>${highRisk}</strong>
-            </div>
+    setText(
+        "highRiskBarValue",
+        high
+    );
 
-            <div class="stat-card">
-                <h3>Moderate Risk</h3>
-                <strong>${mediumRisk}</strong>
-            </div>
+    setText(
+        "moderateRiskBarValue",
+        moderate
+    );
 
-            <div class="stat-card">
-                <h3>Low Risk</h3>
-                <strong>${lowRisk}</strong>
-            </div>
-
-        </div>
-
-        <div class="table-section">
-
-            <div class="section-heading">
-                <h2>AI Recovery Analysis</h2>
-                <span>${data.length} accounts analyzed</span>
-            </div>
-
-            <div class="table-wrapper">
-
-                <table>
-
-                    <thead>
-                        <tr>
-                            <th>Transaction</th>
-                            <th>Customer</th>
-                            <th>Amount</th>
-                            <th>Overdue</th>
-                            <th>Risk</th>
-                            <th>Score</th>
-                            <th>Priority</th>
-                            <th>Recommended Action</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        ${rows}
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-
-        <div class="recommendations">
-
-            <h2>AI Recovery Recommendations</h2>
-
-            ${data.slice(0, 6).map(item => `
-                <div class="recommendation-card">
-
-                    <div>
-                        <strong>
-                            ${item.customer_id || "Customer"}
-                        </strong>
-
-                        <p>
-                            ${item.ai_recommendation || "No recommendation available."}
-                        </p>
-                    </div>
-
-                    <div class="action">
-                        ${item.action_type || "ACTION"}
-                    </div>
-
-                </div>
-            `).join("")}
-
-        </div>
-    `;
-
-    container.appendChild(dashboard);
+    setText(
+        "lowRiskBarValue",
+        low
+    );
 }
 
 
+// ============================================================
+// DISPLAY TRANSACTIONS
+// ============================================================
+
+function displayTransactions(data) {
+
+    const tableBody =
+        document.getElementById(
+            "recoveryTableBody"
+        );
+
+    if (!tableBody) {
+        return;
+    }
+
+
+    if (!data.length) {
+
+        tableBody.innerHTML = `
+            <tr>
+                <td
+                    colspan="9"
+                    class="loading-cell"
+                >
+                    No matching transactions found.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    tableBody.innerHTML =
+        data.map(item => {
+
+            const risk =
+                String(
+                    item.risk_level || "LOW"
+                ).toUpperCase();
+
+
+            const priority =
+                getPriority(item);
+
+
+            const customerId =
+                encodeURIComponent(
+                    item.customer_id || ""
+                );
+
+
+            return `
+                <tr>
+
+                    <td>
+                        <strong>
+                            ${item.transaction_id || "-"}
+                        </strong>
+                    </td>
+
+                    <td>
+                        ${item.customer_id || "-"}
+                    </td>
+
+                    <td>
+                        ₹${Number(
+                            item.amount || 0
+                        ).toLocaleString("en-IN")}
+                    </td>
+
+                    <td>
+                        ${item.days_overdue ?? 0} days
+                    </td>
+
+                    <td>
+                        <span class="risk ${risk.toLowerCase()}">
+                            ${risk}
+                        </span>
+                    </td>
+
+                    <td>
+                        ${item.recovery_score ?? "-"}
+                    </td>
+
+                    <td>
+                        <span class="priority">
+                            ${priority}
+                        </span>
+                    </td>
+
+                    <td>
+                        ${item.recommended_action || "Review account"}
+                    </td>
+
+                    <td>
+                        <button
+                            class="insight-btn"
+                            onclick="viewInsights('${customerId}')"
+                        >
+                            View Insights
+                        </button>
+                    </td>
+
+                </tr>
+            `;
+
+        }).join("");
+}
+
+
+// ============================================================
+// PRIORITY
+// ============================================================
+
+function getPriority(item) {
+
+    const risk =
+        String(
+            item.risk_level || ""
+        ).toUpperCase();
+
+
+    if (risk === "HIGH") {
+        return "URGENT";
+    }
+
+    if (risk === "MODERATE") {
+        return "RETRY";
+    }
+
+    return "REMINDER";
+}
+
+
+// ============================================================
+// FILTERS
+// ============================================================
+
+function applyFilters() {
+
+    const searchInput =
+        document.getElementById(
+            "searchInput"
+        );
+
+    const riskFilter =
+        document.getElementById(
+            "riskFilter"
+        );
+
+    const priorityFilter =
+        document.getElementById(
+            "priorityFilter"
+        );
+
+
+    const search =
+        searchInput
+            ? searchInput.value
+                .toLowerCase()
+                .trim()
+            : "";
+
+
+    const risk =
+        riskFilter
+            ? riskFilter.value
+            : "ALL";
+
+
+    const priority =
+        priorityFilter
+            ? priorityFilter.value
+            : "ALL";
+
+
+    filteredData =
+        recoveryData.filter(item => {
+
+            const customer =
+                String(
+                    item.customer_id || ""
+                ).toLowerCase();
+
+
+            const transaction =
+                String(
+                    item.transaction_id || ""
+                ).toLowerCase();
+
+
+            const itemRisk =
+                String(
+                    item.risk_level || ""
+                ).toUpperCase();
+
+
+            const itemPriority =
+                getPriority(item);
+
+
+            const matchesSearch =
+                !search ||
+                customer.includes(search) ||
+                transaction.includes(search);
+
+
+            const matchesRisk =
+                risk === "ALL" ||
+                itemRisk === risk;
+
+
+            const matchesPriority =
+                priority === "ALL" ||
+                itemPriority === priority;
+
+
+            return (
+                matchesSearch &&
+                matchesRisk &&
+                matchesPriority
+            );
+        });
+
+
+    displayTransactions(filteredData);
+}
+
+
+// ============================================================
+// CLEAR FILTERS
+// ============================================================
+
+function clearFilters() {
+
+    const searchInput =
+        document.getElementById(
+            "searchInput"
+        );
+
+    const riskFilter =
+        document.getElementById(
+            "riskFilter"
+        );
+
+    const priorityFilter =
+        document.getElementById(
+            "priorityFilter"
+        );
+
+
+    if (searchInput) {
+        searchInput.value = "";
+    }
+
+    if (riskFilter) {
+        riskFilter.value = "ALL";
+    }
+
+    if (priorityFilter) {
+        priorityFilter.value = "ALL";
+    }
+
+
+    filteredData =
+        [...recoveryData];
+
+    displayTransactions(
+        filteredData
+    );
+}
+
+
+// ============================================================
+// AI INSIGHTS
+// ============================================================
+
+function displayInsights() {
+
+    const container =
+        document.getElementById(
+            "insightsContent"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    if (!recoveryData.length) {
+        return;
+    }
+
+
+    const high =
+        recoveryData.filter(
+            item =>
+                String(item.risk_level || "")
+                    .toUpperCase() === "HIGH"
+        ).length;
+
+
+    const moderate =
+        recoveryData.filter(
+            item =>
+                String(item.risk_level || "")
+                    .toUpperCase() === "MODERATE"
+        ).length;
+
+
+    const low =
+        recoveryData.filter(
+            item =>
+                String(item.risk_level || "")
+                    .toUpperCase() === "LOW"
+        ).length;
+
+
+    const totalAmount =
+        recoveryData.reduce(
+            (sum, item) =>
+                sum + Number(item.amount || 0),
+            0
+        );
+
+
+    container.innerHTML = `
+
+        <div class="insight-row">
+
+            <span class="insight-number">
+                01
+            </span>
+
+            <div>
+
+                <strong>
+                    ${high} high-risk account(s)
+                </strong>
+
+                <p>
+                    These accounts require immediate recovery attention.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="insight-row">
+
+            <span class="insight-number">
+                02
+            </span>
+
+            <div>
+
+                <strong>
+                    ${moderate} moderate-risk account(s)
+                </strong>
+
+                <p>
+                    Payment retry and personalized follow-up are recommended.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="insight-row">
+
+            <span class="insight-number">
+                03
+            </span>
+
+            <div>
+
+                <strong>
+                    ${low} low-risk account(s)
+                </strong>
+
+                <p>
+                    These accounts are suitable for automated reminders.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="insight-row">
+
+            <span class="insight-number">
+                04
+            </span>
+
+            <div>
+
+                <strong>
+                    ₹${totalAmount.toLocaleString("en-IN")} outstanding
+                </strong>
+
+                <p>
+                    Total pending payment amount identified by the recovery engine.
+                </p>
+
+            </div>
+
+        </div>
+
+    `;
+}
+
+
+// ============================================================
+// AI RECOMMENDATIONS
+// ============================================================
+
+function displayRecommendations() {
+
+    const container =
+        document.getElementById(
+            "recommendationsGrid"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    if (!recoveryData.length) {
+        return;
+    }
+
+
+    const recommendations =
+        recoveryData.slice(0, 6);
+
+
+    container.innerHTML =
+        recommendations.map(item => {
+
+            const customer =
+                item.customer_id || "Customer";
+
+
+            const recommendation =
+                item.ai_recommendation ||
+                item.recommended_action ||
+                "Review customer account";
+
+
+            const action =
+                item.action_type ||
+                getPriority(item);
+
+
+            return `
+
+                <div class="recommendation-card">
+
+                    <strong>
+                        ${customer}
+                    </strong>
+
+                    <p>
+                        ${recommendation}
+                    </p>
+
+                    <div class="action">
+                        ${action}
+                    </div>
+
+                </div>
+
+            `;
+
+        }).join("");
+}
+
+
+// ============================================================
+// VIEW INSIGHTS
+// ============================================================
+
+function viewInsights(customerId) {
+
+    const decodedId =
+        decodeURIComponent(
+            customerId
+        );
+
+
+    const customer =
+        recoveryData.find(
+            item =>
+                String(
+                    item.customer_id
+                ) === String(decodedId)
+        );
+
+
+    if (!customer) {
+        return;
+    }
+
+
+    const modal =
+        document.getElementById(
+            "insightModal"
+        );
+
+    const customerElement =
+        document.getElementById(
+            "modalCustomer"
+        );
+
+    const insightElement =
+        document.getElementById(
+            "modalInsight"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    if (customerElement) {
+
+        customerElement.textContent =
+            customer.customer_id || decodedId;
+    }
+
+
+    if (insightElement) {
+
+        insightElement.innerHTML = `
+
+            <p>
+                <strong>Recovery Score:</strong>
+                ${customer.recovery_score ?? "-"}
+            </p>
+
+            <p>
+                <strong>Risk Level:</strong>
+                ${customer.risk_level || "-"}
+            </p>
+
+            <p>
+                <strong>Amount:</strong>
+                ₹${Number(
+                    customer.amount || 0
+                ).toLocaleString("en-IN")}
+            </p>
+
+            <p>
+                <strong>Days Overdue:</strong>
+                ${customer.days_overdue ?? 0}
+            </p>
+
+            <p>
+                <strong>AI Recommendation:</strong>
+                ${customer.ai_recommendation || "Review account"}
+            </p>
+
+            <p>
+                <strong>Recommended Action:</strong>
+                ${customer.recommended_action || "Follow up"}
+            </p>
+
+        `;
+    }
+
+
+    modal.classList.add("active");
+}
+
+
+// ============================================================
+// CLOSE MODAL
+// ============================================================
+
+function closeInsights() {
+
+    const modal =
+        document.getElementById(
+            "insightModal"
+        );
+
+    if (modal) {
+        modal.classList.remove("active");
+    }
+}
+
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+
+function setText(id, value) {
+
+    const element =
+        document.getElementById(id);
+
+    if (element) {
+        element.textContent = value;
+    }
+}
+
+
+function setBar(id, percentage) {
+
+    const element =
+        document.getElementById(id);
+
+    if (element) {
+        element.style.width =
+            `${percentage}%`;
+    }
+}
+
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+
 document.addEventListener(
     "DOMContentLoaded",
-    loadRecoveryAnalysis
+    () => {
+
+        loadRecoveryAnalysis();
+
+
+        const searchInput =
+            document.getElementById(
+                "searchInput"
+            );
+
+        const riskFilter =
+            document.getElementById(
+                "riskFilter"
+            );
+
+        const priorityFilter =
+            document.getElementById(
+                "priorityFilter"
+            );
+
+        const clearButton =
+            document.getElementById(
+                "clearFilters"
+            );
+
+        const closeButton =
+            document.getElementById(
+                "closeModal"
+            );
+
+
+        if (searchInput) {
+
+            searchInput.addEventListener(
+                "input",
+                applyFilters
+            );
+
+        }
+
+
+        if (riskFilter) {
+
+            riskFilter.addEventListener(
+                "change",
+                applyFilters
+            );
+
+        }
+
+
+        if (priorityFilter) {
+
+            priorityFilter.addEventListener(
+                "change",
+                applyFilters
+            );
+
+        }
+
+
+        if (clearButton) {
+
+            clearButton.addEventListener(
+                "click",
+                clearFilters
+            );
+
+        }
+
+
+        if (closeButton) {
+
+            closeButton.addEventListener(
+                "click",
+                closeInsights
+            );
+
+        }
+
+
+        const modal =
+            document.getElementById(
+                "insightModal"
+            );
+
+
+        if (modal) {
+
+            modal.addEventListener(
+                "click",
+                event => {
+
+                    if (
+                        event.target === modal
+                    ) {
+
+                        closeInsights();
+
+                    }
+
+                }
+            );
+
+        }
+
+    }
 );
