@@ -119,7 +119,7 @@ def recovery_analysis():
         # PRIORITY
         # ========================================
 
-        if score >= 9:
+        if score >= 8:
             priority = "HIGH"
 
         elif score >= 6:
