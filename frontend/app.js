@@ -1,4 +1,5 @@
-const API_URL = "https://ai-revenue-recovery-backend.onrender.com";
+const API_URL =
+    "https://ai-revenue-recovery-backend.onrender.com";
 
 let recoveryData = [];
 let filteredData = [];
@@ -26,17 +27,23 @@ async function loadRecoveryAnalysis() {
         }
 
         const response =
-            await fetch(`${API_URL}/recovery-analysis`);
+            await fetch(
+                `${API_URL}/recovery-analysis`
+            );
 
         if (!response.ok) {
-            throw new Error("Recovery API request failed");
+            throw new Error(
+                "Recovery API request failed"
+            );
         }
 
         const data =
             await response.json();
 
         if (!Array.isArray(data)) {
-            throw new Error("Invalid recovery data");
+            throw new Error(
+                "Invalid recovery data"
+            );
         }
 
         recoveryData = data;
@@ -60,10 +67,12 @@ async function loadRecoveryAnalysis() {
         );
 
         if (tableBody) {
+
             tableBody.innerHTML = `
                 <tr>
                     <td colspan="9" class="loading-cell">
                         ⚠️ Unable to load recovery analysis.
+                        Please try again.
                     </td>
                 </tr>
             `;
@@ -73,7 +82,7 @@ async function loadRecoveryAnalysis() {
 
 
 // ============================================================
-// UPDATE SUMMARY CARDS
+// UPDATE DASHBOARD
 // ============================================================
 
 function updateDashboard() {
@@ -91,24 +100,29 @@ function updateDashboard() {
     const high =
         recoveryData.filter(
             item =>
-                String(item.risk_level || "")
-                    .toUpperCase() === "HIGH"
+                String(
+                    item.risk_level || ""
+                ).toUpperCase() === "HIGH"
         ).length;
 
     const moderate =
         recoveryData.filter(
             item =>
-                String(item.risk_level || "")
-                    .toUpperCase() === "MODERATE"
+                String(
+                    item.risk_level || ""
+                ).toUpperCase() === "MODERATE"
         ).length;
 
     const low =
         recoveryData.filter(
             item =>
-                String(item.risk_level || "")
-                    .toUpperCase() === "LOW"
+                String(
+                    item.risk_level || ""
+                ).toUpperCase() === "LOW"
         ).length;
 
+
+    // Summary cards
 
     setText(
         "totalAmount",
@@ -141,7 +155,7 @@ function updateDashboard() {
     );
 
 
-    // Update bars
+    // Risk percentages
 
     const highPercentage =
         total > 0
@@ -159,6 +173,8 @@ function updateDashboard() {
             : 0;
 
 
+    // Risk bars
+
     setBar(
         "highRiskBar",
         highPercentage
@@ -174,6 +190,8 @@ function updateDashboard() {
         lowPercentage
     );
 
+
+    // Bar values
 
     setText(
         "highRiskBarValue",
@@ -233,10 +251,8 @@ function displayTransactions(data) {
                     item.risk_level || "LOW"
                 ).toUpperCase();
 
-
             const priority =
                 getPriority(item);
-
 
             const customerId =
                 encodeURIComponent(
@@ -249,12 +265,16 @@ function displayTransactions(data) {
 
                     <td>
                         <strong>
-                            ${item.transaction_id || "-"}
+                            ${escapeHtml(
+                                item.transaction_id || "-"
+                            )}
                         </strong>
                     </td>
 
                     <td>
-                        ${item.customer_id || "-"}
+                        ${escapeHtml(
+                            item.customer_id || "-"
+                        )}
                     </td>
 
                     <td>
@@ -268,7 +288,9 @@ function displayTransactions(data) {
                     </td>
 
                     <td>
-                        <span class="risk ${risk.toLowerCase()}">
+                        <span
+                            class="risk ${risk.toLowerCase()}"
+                        >
                             ${risk}
                         </span>
                     </td>
@@ -284,7 +306,10 @@ function displayTransactions(data) {
                     </td>
 
                     <td>
-                        ${item.recommended_action || "Review account"}
+                        ${escapeHtml(
+                            item.recommended_action ||
+                            "Review account"
+                        )}
                     </td>
 
                     <td>
@@ -319,9 +344,11 @@ function getPriority(item) {
         return "URGENT";
     }
 
+
     if (risk === "MODERATE") {
         return "RETRY";
     }
+
 
     return "REMINDER";
 }
@@ -418,7 +445,9 @@ function applyFilters() {
         });
 
 
-    displayTransactions(filteredData);
+    displayTransactions(
+        filteredData
+    );
 }
 
 
@@ -448,9 +477,11 @@ function clearFilters() {
         searchInput.value = "";
     }
 
+
     if (riskFilter) {
         riskFilter.value = "ALL";
     }
+
 
     if (priorityFilter) {
         priorityFilter.value = "ALL";
@@ -459,6 +490,7 @@ function clearFilters() {
 
     filteredData =
         [...recoveryData];
+
 
     displayTransactions(
         filteredData
@@ -490,24 +522,27 @@ function displayInsights() {
     const high =
         recoveryData.filter(
             item =>
-                String(item.risk_level || "")
-                    .toUpperCase() === "HIGH"
+                String(
+                    item.risk_level || ""
+                ).toUpperCase() === "HIGH"
         ).length;
 
 
     const moderate =
         recoveryData.filter(
             item =>
-                String(item.risk_level || "")
-                    .toUpperCase() === "MODERATE"
+                String(
+                    item.risk_level || ""
+                ).toUpperCase() === "MODERATE"
         ).length;
 
 
     const low =
         recoveryData.filter(
             item =>
-                String(item.risk_level || "")
-                    .toUpperCase() === "LOW"
+                String(
+                    item.risk_level || ""
+                ).toUpperCase() === "LOW"
         ).length;
 
 
@@ -517,6 +552,21 @@ function displayInsights() {
                 sum + Number(item.amount || 0),
             0
         );
+
+
+    const highAmount =
+        recoveryData
+            .filter(
+                item =>
+                    String(
+                        item.risk_level || ""
+                    ).toUpperCase() === "HIGH"
+            )
+            .reduce(
+                (sum, item) =>
+                    sum + Number(item.amount || 0),
+                0
+            );
 
 
     container.innerHTML = `
@@ -534,7 +584,8 @@ function displayInsights() {
                 </strong>
 
                 <p>
-                    These accounts require immediate recovery attention.
+                    These accounts require immediate
+                    recovery attention.
                 </p>
 
             </div>
@@ -555,7 +606,8 @@ function displayInsights() {
                 </strong>
 
                 <p>
-                    Payment retry and personalized follow-up are recommended.
+                    Payment retry and personalized
+                    follow-up are recommended.
                 </p>
 
             </div>
@@ -576,7 +628,8 @@ function displayInsights() {
                 </strong>
 
                 <p>
-                    These accounts are suitable for automated reminders.
+                    These accounts are suitable
+                    for automated reminders.
                 </p>
 
             </div>
@@ -593,11 +646,36 @@ function displayInsights() {
             <div>
 
                 <strong>
-                    ₹${totalAmount.toLocaleString("en-IN")} outstanding
+                    ₹${totalAmount.toLocaleString("en-IN")}
+                    outstanding
                 </strong>
 
                 <p>
-                    Total pending payment amount identified by the recovery engine.
+                    Total pending payment amount
+                    identified by the recovery engine.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="insight-row">
+
+            <span class="insight-number">
+                05
+            </span>
+
+            <div>
+
+                <strong>
+                    ₹${highAmount.toLocaleString("en-IN")}
+                    high-risk exposure
+                </strong>
+
+                <p>
+                    Amount associated with high-risk
+                    recovery accounts.
                 </p>
 
             </div>
@@ -629,49 +707,82 @@ function displayRecommendations() {
     }
 
 
+    // High-risk first,
+    // then moderate,
+    // then low
+
     const recommendations =
-        recoveryData.slice(0, 6);
+        [...recoveryData]
+            .sort(
+                (a, b) =>
+                    Number(
+                        b.recovery_score || 0
+                    ) -
+                    Number(
+                        a.recovery_score || 0
+                    )
+            )
+            .slice(0, 6);
 
 
     container.innerHTML =
-        recommendations.map(item => {
+        recommendations
+            .map(item => {
 
-            const customer =
-                item.customer_id || "Customer";
-
-
-            const recommendation =
-                item.ai_recommendation ||
-                item.recommended_action ||
-                "Review customer account";
+                const customer =
+                    item.customer_id ||
+                    "Customer";
 
 
-            const action =
-                item.action_type ||
-                getPriority(item);
+                const recommendation =
+                    item.ai_recommendation ||
+                    item.recommended_action ||
+                    "Review customer account";
 
 
-            return `
+                const action =
+                    item.action_type ||
+                    getPriority(item);
 
-                <div class="recommendation-card">
 
-                    <strong>
-                        ${customer}
-                    </strong>
+                const risk =
+                    String(
+                        item.risk_level || "LOW"
+                    ).toUpperCase();
 
-                    <p>
-                        ${recommendation}
-                    </p>
 
-                    <div class="action">
-                        ${action}
+                return `
+
+                    <div class="recommendation-card">
+
+                        <div>
+
+                            <strong>
+                                ${escapeHtml(
+                                    customer
+                                )}
+                            </strong>
+
+                            <p>
+                                ${escapeHtml(
+                                    recommendation
+                                )}
+                            </p>
+
+                        </div>
+
+                        <div class="action">
+                            ${escapeHtml(
+                                action
+                            )}
+                        </div>
+
                     </div>
 
-                </div>
+                `;
 
-            `;
-
-        }).join("");
+            })
+            .join("");
 }
 
 
@@ -692,7 +803,8 @@ function viewInsights(customerId) {
             item =>
                 String(
                     item.customer_id
-                ) === String(decodedId)
+                ) ===
+                String(decodedId)
         );
 
 
@@ -706,10 +818,12 @@ function viewInsights(customerId) {
             "insightModal"
         );
 
+
     const customerElement =
         document.getElementById(
             "modalCustomer"
         );
+
 
     const insightElement =
         document.getElementById(
@@ -725,51 +839,199 @@ function viewInsights(customerId) {
     if (customerElement) {
 
         customerElement.textContent =
-            customer.customer_id || decodedId;
+            customer.customer_id ||
+            decodedId;
     }
 
 
     if (insightElement) {
 
+        const risk =
+            String(
+                customer.risk_level ||
+                "LOW"
+            ).toUpperCase();
+
+
+        let riskClass =
+            "low";
+
+
+        if (risk === "HIGH") {
+            riskClass = "high";
+        }
+
+        else if (
+            risk === "MODERATE"
+        ) {
+            riskClass = "moderate";
+        }
+
+
+        const score =
+            customer.recovery_score ??
+            "-";
+
+
+        const amount =
+            Number(
+                customer.amount || 0
+            ).toLocaleString(
+                "en-IN"
+            );
+
+
+        const overdue =
+            customer.days_overdue ??
+            0;
+
+
+        const recommendation =
+            customer.ai_recommendation ||
+            "Review customer account";
+
+
+        const decision =
+            customer.ai_decision ||
+            "No AI decision available.";
+
+
+        const action =
+            customer.recommended_action ||
+            "Follow up";
+
+
+        const message =
+            customer.recovery_message ||
+            "No recovery message available.";
+
+
         insightElement.innerHTML = `
 
-            <p>
-                <strong>Recovery Score:</strong>
-                ${customer.recovery_score ?? "-"}
-            </p>
+            <div class="modal-summary">
 
-            <p>
-                <strong>Risk Level:</strong>
-                ${customer.risk_level || "-"}
-            </p>
+                <div class="modal-stat">
 
-            <p>
-                <strong>Amount:</strong>
-                ₹${Number(
-                    customer.amount || 0
-                ).toLocaleString("en-IN")}
-            </p>
+                    <span>
+                        Recovery Score
+                    </span>
 
-            <p>
-                <strong>Days Overdue:</strong>
-                ${customer.days_overdue ?? 0}
-            </p>
+                    <strong>
+                        ${score}
+                    </strong>
 
-            <p>
-                <strong>AI Recommendation:</strong>
-                ${customer.ai_recommendation || "Review account"}
-            </p>
+                </div>
 
-            <p>
-                <strong>Recommended Action:</strong>
-                ${customer.recommended_action || "Follow up"}
-            </p>
+
+                <div class="modal-stat">
+
+                    <span>
+                        Risk Level
+                    </span>
+
+                    <strong
+                        class="modal-risk ${riskClass}"
+                    >
+                        ${risk}
+                    </strong>
+
+                </div>
+
+
+                <div class="modal-stat">
+
+                    <span>
+                        Amount
+                    </span>
+
+                    <strong>
+                        ₹${amount}
+                    </strong>
+
+                </div>
+
+
+                <div class="modal-stat">
+
+                    <span>
+                        Days Overdue
+                    </span>
+
+                    <strong>
+                        ${overdue}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-section">
+
+                <span class="modal-label">
+                    AI RECOMMENDATION
+                </span>
+
+                <p>
+                    ${escapeHtml(
+                        recommendation
+                    )}
+                </p>
+
+            </div>
+
+
+            <div class="modal-section">
+
+                <span class="modal-label">
+                    AI DECISION
+                </span>
+
+                <p>
+                    ${escapeHtml(
+                        decision
+                    )}
+                </p>
+
+            </div>
+
+
+            <div class="modal-section">
+
+                <span class="modal-label">
+                    RECOMMENDED ACTION
+                </span>
+
+                <p class="modal-action">
+                    ${escapeHtml(
+                        action
+                    )}
+                </p>
+
+            </div>
+
+
+            <div class="modal-section recovery-message">
+
+                <span class="modal-label">
+                    RECOVERY MESSAGE
+                </span>
+
+                <p>
+                    ${escapeHtml(
+                        message
+                    )}
+                </p>
+
+            </div>
 
         `;
     }
 
 
-    modal.classList.add("active");
+    modal.classList.add(
+        "active"
+    );
 }
 
 
@@ -784,36 +1046,123 @@ function closeInsights() {
             "insightModal"
         );
 
+
     if (modal) {
-        modal.classList.remove("active");
+
+        modal.classList.remove(
+            "active"
+        );
     }
 }
 
 
 // ============================================================
-// HELPER FUNCTIONS
+// REFRESH DATA
 // ============================================================
 
-function setText(id, value) {
+async function refreshAnalysis() {
 
-    const element =
-        document.getElementById(id);
+    const refreshButton =
+        document.getElementById(
+            "refreshAnalysis"
+        );
 
-    if (element) {
-        element.textContent = value;
+
+    if (refreshButton) {
+
+        refreshButton.disabled = true;
+
+        refreshButton.textContent =
+            "Refreshing...";
+    }
+
+
+    await loadRecoveryAnalysis();
+
+
+    if (refreshButton) {
+
+        refreshButton.disabled = false;
+
+        refreshButton.textContent =
+            "Refresh Analysis";
     }
 }
 
 
-function setBar(id, percentage) {
+// ============================================================
+// HELPER: SET TEXT
+// ============================================================
+
+function setText(
+    id,
+    value
+) {
 
     const element =
-        document.getElementById(id);
+        document.getElementById(
+            id
+        );
+
 
     if (element) {
+
+        element.textContent =
+            value;
+    }
+}
+
+
+// ============================================================
+// HELPER: SET BAR
+// ============================================================
+
+function setBar(
+    id,
+    percentage
+) {
+
+    const element =
+        document.getElementById(
+            id
+        );
+
+
+    if (element) {
+
         element.style.width =
             `${percentage}%`;
     }
+}
+
+
+// ============================================================
+// HELPER: ESCAPE HTML
+// ============================================================
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 }
 
 
@@ -825,32 +1174,56 @@ document.addEventListener(
     "DOMContentLoaded",
     () => {
 
+        // Load dashboard
+
         loadRecoveryAnalysis();
 
+
+        // Search
 
         const searchInput =
             document.getElementById(
                 "searchInput"
             );
 
+
+        // Risk filter
+
         const riskFilter =
             document.getElementById(
                 "riskFilter"
             );
+
+
+        // Priority filter
 
         const priorityFilter =
             document.getElementById(
                 "priorityFilter"
             );
 
+
+        // Clear filters
+
         const clearButton =
             document.getElementById(
                 "clearFilters"
             );
 
+
+        // Close modal
+
         const closeButton =
             document.getElementById(
                 "closeModal"
+            );
+
+
+        // Refresh
+
+        const refreshButton =
+            document.getElementById(
+                "refreshAnalysis"
             );
 
 
@@ -860,7 +1233,6 @@ document.addEventListener(
                 "input",
                 applyFilters
             );
-
         }
 
 
@@ -870,7 +1242,6 @@ document.addEventListener(
                 "change",
                 applyFilters
             );
-
         }
 
 
@@ -880,7 +1251,6 @@ document.addEventListener(
                 "change",
                 applyFilters
             );
-
         }
 
 
@@ -890,7 +1260,6 @@ document.addEventListener(
                 "click",
                 clearFilters
             );
-
         }
 
 
@@ -900,9 +1269,19 @@ document.addEventListener(
                 "click",
                 closeInsights
             );
-
         }
 
+
+        if (refreshButton) {
+
+            refreshButton.addEventListener(
+                "click",
+                refreshAnalysis
+            );
+        }
+
+
+        // Close modal when clicking outside
 
         const modal =
             document.getElementById(
@@ -917,17 +1296,34 @@ document.addEventListener(
                 event => {
 
                     if (
-                        event.target === modal
+                        event.target ===
+                        modal
                     ) {
 
                         closeInsights();
-
                     }
 
                 }
             );
-
         }
+
+
+        // Close modal with Escape key
+
+        document.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key ===
+                    "Escape"
+                ) {
+
+                    closeInsights();
+                }
+
+            }
+        );
 
     }
 );
