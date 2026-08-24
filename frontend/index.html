@@ -14,21 +14,494 @@
 
     <div class="container">
 
+        <!-- HEADER -->
         <header class="header">
 
             <div>
+                <span class="eyebrow">RAZORPAY • AI REVENUE RECOVERY</span>
+
                 <h1>AI Revenue Recovery</h1>
-                <p>Intelligent payment recovery dashboard</p>
+
+                <p>
+                    Intelligent payment recovery dashboard
+                </p>
             </div>
 
-            <button onclick="loadRecoveryAnalysis()">
-                Refresh Analysis
+            <button
+                class="refresh-btn"
+                onclick="loadRecoveryAnalysis()">
+                ↻ Refresh Analysis
             </button>
 
         </header>
 
+
+        <!-- SUMMARY CARDS -->
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <span class="stat-label">
+                    Total Pending Amount
+                </span>
+
+                <strong id="totalAmount">
+                    ₹0
+                </strong>
+
+                <small>
+                    Outstanding payments
+                </small>
+            </div>
+
+
+            <div class="stat-card">
+                <span class="stat-label">
+                    Total Transactions
+                </span>
+
+                <strong id="totalTransactions">
+                    0
+                </strong>
+
+                <small>
+                    Accounts analyzed
+                </small>
+            </div>
+
+
+            <div class="stat-card danger">
+                <span class="stat-label">
+                    High Risk
+                </span>
+
+                <strong id="highRisk">
+                    0
+                </strong>
+
+                <small>
+                    Immediate attention
+                </small>
+            </div>
+
+
+            <div class="stat-card warning">
+                <span class="stat-label">
+                    Moderate Risk
+                </span>
+
+                <strong id="moderateRisk">
+                    0
+                </strong>
+
+                <small>
+                    Requires follow-up
+                </small>
+            </div>
+
+
+            <div class="stat-card success">
+                <span class="stat-label">
+                    Low Risk
+                </span>
+
+                <strong id="lowRisk">
+                    0
+                </strong>
+
+                <small>
+                    Automated recovery
+                </small>
+            </div>
+
+        </section>
+
+
+        <!-- INSIGHTS + CHARTS -->
+        <section class="analytics-grid">
+
+            <!-- RISK DISTRIBUTION -->
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <h2>Risk Distribution</h2>
+
+                        <p>
+                            AI classification of pending accounts
+                        </p>
+                    </div>
+
+                    <span class="panel-icon">
+                        ◈
+                    </span>
+
+                </div>
+
+
+                <div class="risk-bars">
+
+                    <div class="bar-item">
+
+                        <div class="bar-label">
+                            <span>High Risk</span>
+                            <strong id="highRiskBarValue">0</strong>
+                        </div>
+
+                        <div class="bar-track">
+                            <div
+                                id="highRiskBar"
+                                class="bar high">
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="bar-item">
+
+                        <div class="bar-label">
+                            <span>Moderate Risk</span>
+                            <strong id="moderateRiskBarValue">0</strong>
+                        </div>
+
+                        <div class="bar-track">
+                            <div
+                                id="moderateRiskBar"
+                                class="bar moderate">
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="bar-item">
+
+                        <div class="bar-label">
+                            <span>Low Risk</span>
+                            <strong id="lowRiskBarValue">0</strong>
+                        </div>
+
+                        <div class="bar-track">
+                            <div
+                                id="lowRiskBar"
+                                class="bar low">
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- AI INSIGHTS -->
+            <div class="panel insights-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <h2>AI Insights</h2>
+
+                        <p>
+                            Recovery strategy overview
+                        </p>
+                    </div>
+
+                    <span class="panel-icon">
+                        ✦
+                    </span>
+
+                </div>
+
+
+                <div id="insightsContent">
+
+                    <div class="insight-row">
+
+                        <span class="insight-number">
+                            01
+                        </span>
+
+                        <div>
+                            <strong>
+                                Loading insights...
+                            </strong>
+
+                            <p>
+                                AI recovery analysis will appear here.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- RECOVERY ANALYSIS -->
+        <section class="table-section">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="eyebrow">
+                        RECOVERY ENGINE
+                    </span>
+
+                    <h2>
+                        AI Recovery Analysis
+                    </h2>
+
+                    <p>
+                        Analyze payment risk and recommended recovery actions.
+                    </p>
+                </div>
+
+                <span
+                    id="accountsAnalyzed"
+                    class="accounts-badge">
+                    0 accounts analyzed
+                </span>
+
+            </div>
+
+
+            <!-- FILTERS -->
+            <div class="filters">
+
+                <div class="search-box">
+
+                    <span>⌕</span>
+
+                    <input
+                        id="searchInput"
+                        type="text"
+                        placeholder="Search transaction or customer...">
+
+                </div>
+
+
+                <select id="riskFilter">
+
+                    <option value="ALL">
+                        All Risk Levels
+                    </option>
+
+                    <option value="HIGH">
+                        High Risk
+                    </option>
+
+                    <option value="MODERATE">
+                        Moderate Risk
+                    </option>
+
+                    <option value="LOW">
+                        Low Risk
+                    </option>
+
+                </select>
+
+
+                <select id="priorityFilter">
+
+                    <option value="ALL">
+                        All Priorities
+                    </option>
+
+                    <option value="URGENT">
+                        Urgent
+                    </option>
+
+                    <option value="RETRY">
+                        Retry
+                    </option>
+
+                    <option value="REMINDER">
+                        Reminder
+                    </option>
+
+                </select>
+
+
+                <button
+                    id="clearFilters"
+                    class="clear-btn">
+                    Clear Filters
+                </button>
+
+            </div>
+
+
+            <!-- TABLE -->
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Transaction
+                            </th>
+
+                            <th>
+                                Customer
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                            <th>
+                                Overdue
+                            </th>
+
+                            <th>
+                                Risk
+                            </th>
+
+                            <th>
+                                Score
+                            </th>
+
+                            <th>
+                                Priority
+                            </th>
+
+                            <th>
+                                Recommended Action
+                            </th>
+
+                            <th>
+                                Insights
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="recoveryTableBody">
+
+                        <tr>
+
+                            <td colspan="9" class="loading-cell">
+
+                                Loading AI recovery analysis...
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- RECOMMENDATIONS -->
+        <section class="recommendations">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        AI DECISION ENGINE
+                    </span>
+
+                    <h2>
+                        AI Recovery Recommendations
+                    </h2>
+
+                    <p>
+                        Recommended next actions based on customer risk.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="recommendationsGrid"
+                class="recommendations-grid">
+
+                <div class="recommendation-card">
+
+                    <strong>
+                        Loading...
+                    </strong>
+
+                    <p>
+                        Generating recovery recommendations.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- INSIGHT MODAL -->
+        <div
+            id="insightModal"
+            class="modal">
+
+            <div class="modal-content">
+
+                <button
+                    id="closeModal"
+                    class="modal-close">
+                    ×
+                </button>
+
+                <span class="eyebrow">
+                    AI CUSTOMER INSIGHT
+                </span>
+
+                <h2 id="modalCustomer">
+                    Customer
+                </h2>
+
+                <div
+                    id="modalInsight"
+                    class="modal-body">
+                    No insight available.
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- FOOTER -->
+        <footer>
+
+            <span>
+                AI Revenue Recovery
+            </span>
+
+            <span>
+                Intelligent payment recovery • Powered by AI
+            </span>
+
+        </footer>
+
     </div>
 
+
+    <!-- JAVASCRIPT -->
     <script src="app.js"></script>
 
 </body>
