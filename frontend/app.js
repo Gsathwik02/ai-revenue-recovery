@@ -318,23 +318,9 @@ function displayTransactions(data) {
 
 function getPriority(item) {
 
-    const risk =
-        String(
-            item.risk_level || ""
-        ).toUpperCase();
-
-
-    if (risk === "HIGH") {
-        return "URGENT";
-    }
-
-
-    if (risk === "MODERATE") {
-        return "RETRY";
-    }
-
-
-    return "REMINDER";
+    return String(
+        item.priority || "LOW"
+    ).toUpperCase();
 }
 
 
