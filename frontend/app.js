@@ -761,15 +761,18 @@ function viewInsights(customerId) {
         let riskClass = "low";
 
 
-        if (risk === "HIGH") {
-            riskClass = "high";
-        }
+       if (
+    risk === "HIGH" ||
+    risk === "CRITICAL"
+) {
+    riskClass = "high";
+}
 
-        else if (
-            risk === "MODERATE"
-        ) {
-            riskClass = "moderate";
-        }
+else if (
+    risk === "MODERATE"
+) {
+    riskClass = "moderate";
+}
 
 
         const score =
