@@ -676,12 +676,14 @@ function displayRecommendations() {
                             )}
                         </p>
 
-      <button
-    class="insight-action-btn"
-    onclick="handleRecoveryAction('${encodeURIComponent(customer)}', '${encodeURIComponent(action)}')"
->
-    ${escapeHtml(action)}
-</button>
+     <div class="action">
+    <button
+        class="recovery-action-btn"
+        onclick="handleRecoveryAction('${encodeURIComponent(customer)}', '${escapeHtml(action)}')"
+    >
+        ${escapeHtml(action)}
+    </button>
+</div>
 
                     </div>
 
