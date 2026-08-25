@@ -918,19 +918,27 @@ else if (
             </div>
 
 
-            <div class="modal-section recovery-message">
+           <div class="modal-section recovery-message">
 
-                <span class="modal-label">
-                    RECOVERY MESSAGE
-                </span>
+    <span class="modal-label">
+        RECOVERY MESSAGE
+    </span>
 
-                <p>
-                    ${escapeHtml(
-                        message
-                    )}
-                </p>
+    <p id="recoveryMessageText">
+        ${escapeHtml(
+            message
+        )}
+    </p>
 
-            </div>
+    <button
+        type="button"
+        class="copy-btn"
+        onclick="copyRecoveryMessage()"
+    >
+        Copy Recovery Message
+    </button>
+
+</div>
 
         `;
     }
