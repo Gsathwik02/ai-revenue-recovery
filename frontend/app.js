@@ -958,10 +958,10 @@ function closeInsights() {
         modal.classList.remove(
             "active"
         );
+
+        document.body.style.overflow = "";
     }
 }
-
-
 // ============================================================
 // HELPER - TEXT
 // ============================================================
