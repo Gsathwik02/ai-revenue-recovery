@@ -318,9 +318,20 @@ function displayTransactions(data) {
 
 function getPriority(item) {
 
-    return String(
-        item.priority || "LOW"
-    ).toUpperCase();
+    const priority =
+        String(
+            item.priority || ""
+        ).toUpperCase();
+
+    if (priority === "HIGH") {
+        return "URGENT";
+    }
+
+    if (priority === "MEDIUM") {
+        return "RETRY";
+    }
+
+    return "REMINDER";
 }
 
 
