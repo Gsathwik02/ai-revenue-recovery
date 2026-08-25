@@ -973,7 +973,28 @@ function closeInsights() {
 // ============================================================
 // HELPER - TEXT
 // ============================================================
+function copyRecoveryMessage() {
 
+    const messageElement =
+        document.getElementById(
+            "recoveryMessageText"
+        );
+
+    if (!messageElement) {
+        return;
+    }
+
+    const message =
+        messageElement.textContent.trim();
+
+    if (!message) {
+        return;
+    }
+
+    navigator.clipboard.writeText(
+        message
+    );
+}
 function setText(id, value) {
 
     const element =
