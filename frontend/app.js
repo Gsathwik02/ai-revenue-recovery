@@ -676,11 +676,12 @@ function displayRecommendations() {
                             )}
                         </p>
 
-                        <div class="action">
-                            ${escapeHtml(
-                                action
-                            )}
-                        </div>
+      <button
+    class="insight-action-btn"
+    onclick="handleRecoveryAction('${encodeURIComponent(customer)}', '${encodeURIComponent(action)}')"
+>
+    ${escapeHtml(action)}
+</button>
 
                     </div>
 
@@ -694,7 +695,17 @@ function displayRecommendations() {
 // ============================================================
 // VIEW INSIGHTS
 // ============================================================
+function handleRecoveryAction(customerId, action) {
+    const decodedId = decodeURIComponent(customerId);
 
+    if (action === "REMINDER") {
+        alert(`Reminder scheduled for ${decodedId}`);
+    }
+
+    else if (action === "CONTACT") {
+        alert(`Contact action started for ${decodedId}`);
+    }
+}
 function viewInsights(customerId) {
 
     const decodedId =
