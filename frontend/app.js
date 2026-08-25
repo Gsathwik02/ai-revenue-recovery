@@ -707,6 +707,9 @@ function handleRecoveryAction(customerId, action) {
     else if (action === "CONTACT") {
         alert(`Contact action started for ${decodedId}`);
     }
+    else if (action === "RETRY") {
+    alert(`Retry action started for ${decodedId}`);
+}
 }
 function viewInsights(customerId) {
 
