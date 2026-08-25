@@ -937,6 +937,7 @@ else if (
 
 
     modal.classList.add("active");
+    document.body.style.overflow = "hidden";
 }
 
 
