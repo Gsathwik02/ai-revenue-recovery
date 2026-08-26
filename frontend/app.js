@@ -636,9 +636,8 @@ function displayRecommendations() {
     }
 
 
-    const recommendations =
-        recoveryData.slice(0, 6);
-
+   const recommendations =
+    recoveryData;
 
     container.innerHTML =
         recommendations
